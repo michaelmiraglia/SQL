@@ -1,0 +1,113 @@
+-- questions:
+
+-- 1. which artists had multiple songs in the top 50, and which of those artists had the strongest
+-- overall performance? return the artist, number of tracks, average popularity, highest popularity,
+-- lowest popularity, and the difference between their highest and lowest popularity scores.
+-- only include artists with more than one track.
+
+SELECT Spotifydata.artist_name,
+COUNT(track_name) AS trackCount,
+ROUND(AVG(Spotifydata.popularity), 1) AS avgPop,
+MAX(Spotifydata.popularity) AS maxPop,
+MIN(Spotifydata.popularity) AS minPop,
+MAX(Spotifydata.popularity) - MIN(Spotifydata.popularity) AS popDiff
+FROM BIT_DB.Spotifydata
+GROUP BY Spotifydata.artist_name
+HAVING COUNT(track_name) > 1
+ORDER BY popDiff DESC
+;
+
+
+-- 2. which songs were more popular than the average top 50 song despite having both below-average
+-- energy and below-average danceability? return the artist, track, popularity, energy, and
+-- danceability. order by popularity from highest to lowest.
+
+SELECT artist_name,
+track_name,
+popularity,
+energy,
+danceability
+FROM BIT_DB.Spotifydata
+WHERE popularity > (SELECT AVG(popularity) FROM BIT_DB.Spotifydata)
+AND energy < (SELECT AVG(energy) FROM BIT_DB.Spotifydata)
+AND danceability < (SELECT AVG(danceability) FROM BIT_DB.Spotifydata)
+ORDER BY popularity DESC
+;
+
+
+
+-- 3. which songs performed above the overall average popularity while also having above-average
+-- danceability and energy? return the artist, track, popularity, danceability, energy, and valence.
+-- order by popularity from highest to lowest.
+
+SELECT artist_name,
+track_name,
+popularity,
+danceability,
+energy,
+valence
+FROM BIT_DB.Spotifydata
+WHERE popularity > (SELECT AVG(popularity) FROM BIT_DB.Spotifydata)
+AND danceability > (SELECT AVG(danceability) FROM BIT_DB.Spotifydata)
+AND energy > (SELECT AVG(energy) FROM BIT_DB.Spotifydata)
+ORDER BY popularity DESC
+;
+
+
+-- 4. which artists with multiple songs in the top 50 had an average popularity above the overall
+-- average popularity of all songs? return the artist, number of tracks, average popularity,
+-- average danceability, average energy, and average valence. only include artists with more than
+-- one track and order the results by average popularity from highest to lowest.
+
+SELECT artist_name,
+COUNT(track_name) AS Top50Count,
+ROUND(AVG(popularity), 1) AS AvgArtistPop,
+ROUND(AVG(danceability),1) AS AvgSongDanceability,
+ROUND(AVG(energy), 1) AS AvgSongEnergy,
+ROUND(AVG(valence), 1) AS AvgSongValence
+FROM BIT_DB.Spotifydata
+GROUP BY artist_name
+HAVING COUNT(track_name) > 1
+AND AVG(popularity) > (SELECT AVG(popularity) FROM BIT_DB.Spotifydata)
+ORDER BY AVG(popularity) DESC
+;
+
+
+-- 5. how do songs written in major and minor modes compare? group songs by mode and return the
+-- number of songs, average popularity, average danceability, average energy, and average valence.
+-- label the modes as "Major" and "Minor" instead of 1 and 0.
+
+SELECT
+CASE
+    WHEN song_mode = 0 THEN 'Minor'
+    WHEN song_mode = 1 THEN 'Major'
+    END song_mode,
+COUNT(track_name) AS NumOfTracks,
+ROUND(AVG(popularity), 1) AS AvgArtistPop,
+ROUND(AVG(danceability),1) AS AvgSongDanceability,
+ROUND(AVG(energy), 1) AS AvgSongEnergy,
+ROUND(AVG(valence), 1) AS AvgSongValence
+FROM BIT_DB.Spotifydata
+GROUP BY song_mode
+;
+
+
+-- 6. do shorter songs appear to perform differently from longer songs? categorize each song as
+-- "Below Average Length" or "Above Average Length" based on the overall average track duration.
+-- for each category, return the number of tracks and the average popularity, danceability, energy,
+-- and valence.
+
+SELECT
+CASE
+    WHEN duration_ms > (SELECT AVG(duration_ms) FROM BIT_DB.Spotifydata) THEN 'Above Average Length'
+    WHEN duration_ms < (SELECT AVG(duration_ms) FROM BIT_DB.Spotifydata) THEN 'Below Average Length'
+    ELSE 'Average Length'
+    END length_category,
+COUNT(track_name),
+ROUND(AVG(popularity), 1) AS AvgArtistPop,
+ROUND(AVG(danceability),1) AS AvgSongDanceability,
+ROUND(AVG(energy), 1) AS AvgSongEnergy,
+ROUND(AVG(valence), 1) AS AvgSongValence
+FROM BIT_DB.Spotifydata
+GROUP BY length_category
+;
