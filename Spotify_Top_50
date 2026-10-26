@@ -1,3 +1,33 @@
+# This project uses Spotify song data.
+# Started by creating a table then importing data from a CSV
+
+#Creating the table:
+
+CREATE TABLE BIT_DB.Spotifydata (
+id integer PRIMARY KEY,
+artist_name varchar NOT NULL,
+track_name varchar NOT NULL,
+track_id varchar NOT NULL,
+popularity integer NOT NULL,
+danceability decimal(4,3) NOT NULL,
+energy decimal(4,3) NOT NULL,
+key integer NOT NULL,
+loudness decimal(5,3) NOT NULL,
+song_mode integer NOT NULL,
+speechiness decimal(5,4) NOT NULL,
+acousticness decimal(6,5) NOT NULL,
+instrumentalness text NOT NULL,
+liveness decimal(5,4) NOT NULL,
+valence decimal(4,3) NOT NULL,
+tempo decimal(6,3) NOT NULL,
+duration_ms integer NOT NULL,
+time_signature integer NOT NULL 
+)
+;
+
+
+# Proceeded to query imported data to answer the 6 following questions I came up with based on the data:
+
 -- questions:
 
 -- 1. which artists had multiple songs in the top 50, and which of those artists had the strongest
@@ -83,7 +113,7 @@ CASE
     WHEN song_mode = 1 THEN 'Major'
     END song_mode,
 COUNT(track_name) AS NumOfTracks,
-ROUND(AVG(popularity), 1) AS AvgArtistPop,
+ROUND(AVG(popularity), 1) AS AvgPopularity,
 ROUND(AVG(danceability),1) AS AvgSongDanceability,
 ROUND(AVG(energy), 1) AS AvgSongEnergy,
 ROUND(AVG(valence), 1) AS AvgSongValence
@@ -103,8 +133,8 @@ CASE
     WHEN duration_ms < (SELECT AVG(duration_ms) FROM BIT_DB.Spotifydata) THEN 'Below Average Length'
     ELSE 'Average Length'
     END length_category,
-COUNT(track_name),
-ROUND(AVG(popularity), 1) AS AvgArtistPop,
+COUNT(track_name) AS TrackCount,
+ROUND(AVG(popularity), 1) AS AvgPopularity,
 ROUND(AVG(danceability),1) AS AvgSongDanceability,
 ROUND(AVG(energy), 1) AS AvgSongEnergy,
 ROUND(AVG(valence), 1) AS AvgSongValence
